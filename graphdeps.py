@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 'graph dependencies in projects'
 import json
-from subprocess import Popen, PIPE
 import sys
+from subprocess import Popen, PIPE
+from textwrap import fill
 
 HEADER = 'digraph dependencies {\nrankdir="LR"'
 FOOTER = '}'
@@ -42,7 +43,7 @@ if __name__ == '__main__':
     print('Printing Labels')
     for datum in data[0]:
         uuid = datum['uuid'].replace(r'"', r'\"')
-        description = datum['description'].replace(r'"', r'\"')
+        description = fill(datum['description'].replace(r'"', r'\"'), width=25)
         lines.append('"%s"[label="%s"];'
                      % (uuid, description))
 

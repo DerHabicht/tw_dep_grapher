@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Outputs of the script
+deps.dot
+deps.pdf
