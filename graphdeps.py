@@ -38,20 +38,17 @@ if __name__ == '__main__':
     data = get_json(QUERY)
 
     lines = [HEADER]
-    print('Printing Labels')
+    lines.append('node [shape=none];')
+    if not data:
+        print('No tasks with dependencies found')
+        sys.exit(1)
     for datum in data[0]:
-        uuid = datum['uuid'].replace(r'"', r'\"')
         description = fill(datum['description'].replace(r'"', r'\"'), width=25)
         lines.append('"%s"[label="%s"];'
-                     % (uuid, description))
-
-    # second pass: dependencies
-    print('Resolving Dependencies')
-    for datum in data[0]:
-        for dep in datum.get('depends', '').split(','):
-            if dep != '':
-                lines.append('"%s" -> "%s";' % (dep, datum['uuid']))
-
+                     % (datum['uuid'], description))
+        for dep in datum.get('depends', []):
+            if dep:
+                lines.append(f"\"{dep}\" -> \"{datum['uuid']}\";")
     lines.append(FOOTER)
 
     dot_input = '\n'.join(lines)
