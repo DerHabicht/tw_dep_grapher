@@ -1,5 +1,9 @@
 #!/usr/bin/env python
-'graph dependencies in projects'
+
+'''
+Visualize taskwarrior task dependencies using graphviz.
+'''
+
 import json
 import sys
 from subprocess import Popen, PIPE
@@ -8,14 +12,11 @@ from textwrap import fill
 HEADER = 'digraph dependencies {\nrankdir="LR"'
 FOOTER = '}'
 
-JSON_START = '['
-JSON_END = ']'
-
 
 def call_taskwarrior(cmd):
     'call taskwarrior, returning output and error'
-    tw = Popen(['task'] + cmd.split(), stdout=PIPE, stderr=PIPE)
-    return tw.communicate()
+    task_warrior = Popen(['task'] + cmd.split(), stdout=PIPE, stderr=PIPE)
+    return task_warrior.communicate()
 
 
 def get_json(query):
@@ -23,7 +24,7 @@ def get_json(query):
     print(query)
     raw, err = call_taskwarrior('export %s' % query)
     result = raw.decode('UTF-8')
-    return json.loads(JSON_START + str(result) + JSON_END)
+    return json.loads(f'[ {str(result)} ]')
 
 
 def call_dot(instr):
@@ -33,12 +34,10 @@ def call_dot(instr):
 
 
 if __name__ == '__main__':
-    query = sys.argv[1:]
-    print(query)
-    print('Calling TaskWarrior')
-    data = get_json(' '.join(query))
+    QUERY = ' '.join(sys.argv[1:])
+    print(f'Calling TaskWarrior with query\t{QUERY}')
+    data = get_json(QUERY)
 
-    # first pass: labels
     lines = [HEADER]
     print('Printing Labels')
     for datum in data[0]:
@@ -56,8 +55,10 @@ if __name__ == '__main__':
 
     lines.append(FOOTER)
 
-    with open('deps.dot', 'w') as f:
-        f.write('\n'.join(lines))
+    dot_input = '\n'.join(lines)
+
+    with open('deps.dot', 'w', encoding='utf-8') as f:
+        f.write(dot_input)
 
     print('Calling dot')
     pdf, err = call_dot('\n'.join(lines).encode('utf-8'))
@@ -65,6 +66,6 @@ if __name__ == '__main__':
         print('Error calling dot:')
         print(err.strip())
 
-    print('Writing to deps.pdf')
+    print('Writing pdf')
     with open('deps.pdf', 'wb') as f:
         f.write(pdf)
