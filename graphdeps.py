@@ -21,8 +21,7 @@ def call_taskwarrior(cmd):
 
 def get_json(query):
     'call taskwarrior, returning objects from json'
-    print(query)
-    raw, err = call_taskwarrior('export %s' % query)
+    raw, _ = call_taskwarrior(f'{query} export')
     result = raw.decode('UTF-8')
     return json.loads(f'[ {str(result)} ]')
 
